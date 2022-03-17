@@ -156,13 +156,12 @@ mssql_servers = {
     }
 
     # Optional
-    private_endpoints = {
+    web = {
       # Require enforce_private_link_endpoint_network_policies set to true on the subnet
       private-link-level4 = {
         name               = "sales-sql-rg1"
-        lz_key             = "launchpad"
-        vnet_key           = "devops_region1"
-        subnet_key         = "private_endpoints"
+        vnet_key           = "vnet1"
+        subnet_key         = "web"
         resource_group_key = "sql_region1"
 
         private_service_connection = {
@@ -254,8 +253,7 @@ private_dns = {
     vnet_links = {
       devops = {
         name     = "devops"
-        lz_key   = "launchpad"
-        vnet_key = "devops_region1"
+        vnet_key = "vnet1"
       }
 
     }
@@ -267,15 +265,13 @@ azuread_groups = {
     name        = "sql-sales-admins"
     description = "Administrators of the sales SQL server."
     members = {
-      user_principal_names = []
-      object_ids = [
-      ]
+      user_principal_names   = []
+      object_ids             = []
       group_keys             = []
       service_principal_keys = []
     }
     owners = {
-      user_principal_names = [
-      ]
+      user_principal_names   = []
       service_principal_keys = []
       object_ids             = []
     }
@@ -283,16 +279,40 @@ azuread_groups = {
   }
 }
 
-# The role mapping is a required permission for mssql server identity to use audit_policy
-role_mapping = {
-  built_in_role_mapping = {
-    storage_accounts = {
-      auditing-rg1 = {
-        "Storage Blob Data Contributor" = {
-          mssql_servers = {
-            keys = ["sales-rg1"]
-          }
-        }
+# # The role mapping is a required permission for mssql server identity to use audit_policy
+# role_mapping = {
+#   built_in_role_mapping = {
+#     storage_accounts = {
+#       auditing-rg1 = {
+#         "Storage Blob Data Contributor" = {
+#           mssql_servers = {
+#             keys = ["sales-rg1"]
+#           }
+#         }
+#       }
+#       auditing-rg2 = {
+#         "Storage Blob Data Contributor" = {
+#           mssql_servers = {
+#             keys = ["sales-rg2"]
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
+
+vnets = {
+  vnet1 = {
+    resource_group_key = "sql_region1"
+    vnet = {
+      name          = "testvnet1"
+      address_space = ["10.0.0.0/16"]
+    }
+    subnets = {
+      web = {
+        name                                           = "web-subnet"
+        cidr                                           = ["10.0.1.0/24"]
+        enforce_private_link_endpoint_network_policies = "true"
       }
     }
   }
